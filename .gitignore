@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+
+# Local session state: a SQLite database and its logs, not source.
+.crush/
+
+# Nothing here should ever be committed.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
