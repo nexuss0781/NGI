@@ -11,3 +11,6 @@ coverage/
 !.env.example
 *.pem
 *.key
+
+# Live checks: these reach the deployed service and cost credits, so they
+# are opt-in via live/vitest.live.config.ts rather than part of npm test.

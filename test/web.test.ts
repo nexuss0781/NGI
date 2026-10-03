@@ -216,6 +216,116 @@ describe("web tools", () => {
   });
 });
 
+describe("web.search, with several queries", () => {
+  /** Answers per query, so a test can say which angle found what. */
+  function byQuery(picks: Record<string, unknown[]>): Parameters<typeof fakeService>[0] {
+    return (body) => ({
+      payload: {
+        ...searchPayload,
+        query: String(body.query),
+        results: picks[String(body.query)] ?? [],
+      },
+    });
+  }
+
+  it("sends each query separately and keeps one result per turn", async () => {
+    const service = await fakeService(
+      byQuery({
+        aurora: [{ rank: 1, title: "A1", url: "https://a.test/1", snippet: null, providers: ["wikipedia"] }],
+        "boreal": [{ rank: 1, title: "B1", url: "https://b.test/1", snippet: null, providers: ["arxiv"] }],
+      }),
+    );
+    try {
+      const out = await byName(webTools({ baseUrl: service.url }), "web.search").call(
+        JSON.stringify({ queries: ["aurora", "boreal"] }),
+        ctx,
+      );
+
+      expect(service.seen.map((entry) => entry.body.query).sort()).toEqual(["aurora", "boreal"]);
+      // Interleaved, so the second query's only result is not left out.
+      expect(out).toContain("A1");
+      expect(out).toContain("B1");
+    } finally {
+      await service.close();
+    }
+  });
+
+  it("takes a bare string as one whole question, not several words", async () => {
+    const service = await fakeService(() => ({ payload: searchPayload }));
+    try {
+      await byName(webTools({ baseUrl: service.url }), "web.search").call(
+        JSON.stringify({ queries: "sqlite vs postgres for embedded storage" }),
+        ctx,
+      );
+      expect(service.seen).toHaveLength(1);
+      expect(service.seen[0]?.body.query).toBe("sqlite vs postgres for embedded storage");
+    } finally {
+      await service.close();
+    }
+  });
+
+  it("shows the same page once when two queries both find it", async () => {
+    const shared = { rank: 1, title: "Shared", url: "https://shared.test/x", snippet: null, providers: ["wikipedia"] };
+    const service = await fakeService(
+      byQuery({
+        aurora: [shared, { ...shared, url: "https://a.test/2", title: "A2" }],
+        "boreal": [shared],
+      }),
+    );
+    try {
+      const out = await byName(webTools({ baseUrl: service.url }), "web.search").call(
+        JSON.stringify({ queries: ["aurora", "boreal"] }),
+        ctx,
+      );
+      expect(out.match(/shared\.test/g)).toHaveLength(1);
+    } finally {
+      await service.close();
+    }
+  });
+
+  it("still answers when one query fails, and says which one", async () => {
+    const service = await fakeService((body) => {
+      if (body.query === "broken") return { status: 500, payload: { error: "upstream" } };
+      return { payload: { ...searchPayload, results: [{ rank: 1, title: "Good", url: "https://g.test/1", snippet: null, providers: ["wikipedia"] }] } };
+    });
+    try {
+      const out = await byName(webTools({ baseUrl: service.url }), "web.search").call(
+        JSON.stringify({ queries: ["good", "broken"] }),
+        ctx,
+      );
+      expect(out).toContain("Good");
+      expect(out).toContain("broken");
+    } finally {
+      await service.close();
+    }
+  });
+
+  it("refuses more than four, rather than quietly dropping the rest", async () => {
+    const service = await fakeService(() => ({ payload: searchPayload }));
+    try {
+      await expect(
+        byName(webTools({ baseUrl: service.url }), "web.search").call(
+          JSON.stringify({ queries: ["a", "b", "c", "d", "e"] }),
+          ctx,
+        ),
+      ).rejects.toThrow(/at most 4/);
+    } finally {
+      await service.close();
+    }
+  });
+
+  it("renders results as citations, so a url can be quoted directly", async () => {
+    const service = await fakeService(() => ({ payload: searchPayload }));
+    try {
+      const out = await byName(webTools({ baseUrl: service.url }), "web.search").call("query: aurora", ctx);
+      expect(out).toContain("[Aurora](https://en.wikipedia.org/wiki/Aurora)");
+      expect(out).toContain("web.fetch");
+    } finally {
+      await service.close();
+    }
+  });
+});
+
 describe("webFromEnv", () => {
   it("falls back to the deployed server, so a run is never quietly without web access", () => {
     expect(webFromEnv({}).baseUrl).toBe(DEPLOYED_WEB_KIT);
