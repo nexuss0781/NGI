@@ -314,7 +314,33 @@ describe("web.search, with several queries", () => {
     }
   });
 
-  it("renders results as citations, so a url can be quoted directly", async () => {
+  it("lets the caller choose which providers answer", async () => {
+  const service = await fakeService(() => ({ payload: searchPayload }));
+  try {
+    const tools = webTools({ baseUrl: service.url });
+    // The description tells the agent to name the source that fits, so both
+    // spellings a model reaches for have to work.
+    await byName(tools, "web.search").call(JSON.stringify({ query: "reclaiming space", providers: ["firecrawl"] }), ctx);
+    expect(service.seen[0]?.body.providers).toEqual(["firecrawl"]);
+
+    await byName(tools, "web.search").call("query: autovacuum\nproviders: arxiv, github", ctx);
+    expect(service.seen[1]?.body.providers).toEqual(["arxiv", "github"]);
+  } finally {
+    await service.close();
+  }
+});
+
+it("names the sources in its own description, so the choice is available at call time", () => {
+  const description = byName(webTools({}), "web.search").description;
+  // Each provider is named in the tool description itself, because a skill file
+  // is not in context when the model decides which tool to call.
+  for (const id of ["firecrawl", "arxiv", "crossref", "github", "wikipedia", "openlibrary", "hackernews"]) {
+    expect(description).toContain(id);
+  }
+  expect(description).toMatch(/untrusted/i);
+});
+
+it("renders results as citations, so a url can be quoted directly", async () => {
     const service = await fakeService(() => ({ payload: searchPayload }));
     try {
       const out = await byName(webTools({ baseUrl: service.url }), "web.search").call("query: aurora", ctx);

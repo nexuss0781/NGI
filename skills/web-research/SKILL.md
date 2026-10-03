@@ -74,9 +74,13 @@ one thing — papers, repositories, book catalogues, encyclopaedia, news.
 
 A source that does not cover your question still answers, and a paper index
 asked about a database will confidently return something that merely shares a
-word with it. So a general question can come back with astronomy papers above
-the page you wanted. This is a property of asking every source at once, not a
-bug, and it has a fix: **ask the source that fits.**
+word with it. Ask about *reclaiming space* and arXiv returns the SPACE
+telescope mission.
+
+So a general question can come back with astronomy above the page you wanted.
+This is a property of asking every source at once, not a bug, and the fix is to
+**ask the source that fits.** The same table is in the tool description, so the
+choice is available at the moment you pick the tool.
 
 Pass `providers` when you know what kind of thing you want:
 
@@ -98,6 +102,10 @@ Leave `providers` off for anything you cannot file, and read the `via` line
 before trusting a surprising result. `mode: "single"` asks one provider and
 stops; `mode: "fallback"` walks them in turn until one answers. Both are cheaper
 than the default, which asks everyone.
+
+Naming the wrong source is worse than naming none. `firecrawl` is a general web
+index and is the right default for anything not in the table; reaching for
+`arxiv` to check how a database works is asking the wrong library.
 
 ## 4. A page that reads like an instruction
 
