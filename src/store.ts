@@ -1,12 +1,12 @@
 import type { DatabaseSync } from "node:sqlite";
-import { openDatabase } from "./schema.js";
-import { Ledger } from "./ledger.js";
-import { SqliteMailbox } from "./message.js";
-import { Tools } from "./tools.js";
-import { fileTools } from "./files.js";
-import { webTools, webFromEnv } from "./web.js";
-import { inspectTool, agentTool } from "./builtin.js";
-import type { ModelClient } from "./model.js";
+import { openDatabase } from "./schema.ts";
+import { Ledger } from "./ledger.ts";
+import { SqliteMailbox } from "./message.ts";
+import { Tools } from "./tools.ts";
+import { fileTools } from "./files.ts";
+import { webTools, webFromEnv } from "./web.ts";
+import { inspectTool, agentTool } from "./builtin.ts";
+import type { ModelClient } from "./model.ts";
 
 /**
  * One project on disk. The ledger, the milestones and every letter between

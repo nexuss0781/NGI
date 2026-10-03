@@ -1,6 +1,6 @@
-import { Mailbox, formatInbox } from "./message.js";
-import type { Letter } from "./message.js";
-import type { ToolSpec } from "./model.js";
+import { Mailbox, formatInbox } from "./message.ts";
+import type { Letter } from "./message.ts";
+import type { ToolSpec } from "./model.ts";
 
 /**
  * Who is calling, and with what. A tool that starts another agent may only

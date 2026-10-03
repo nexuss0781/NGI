@@ -1,6 +1,6 @@
 import { createFilesystem } from "filesystem-kit";
 import type { Entry, Filesystem, LineRange } from "filesystem-kit";
-import type { Tool } from "./tools.js";
+import type { Tool } from "./tools.ts";
 
 const MAX_OUTPUT = 20_000;
 const MAX_WRITE = 2_000_000;

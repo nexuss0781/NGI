@@ -1,6 +1,6 @@
-import type { Message, ModelClient } from "./model.js";
-import { Tools } from "./tools.js";
-import { formatInbox } from "./message.js";
+import type { Message, ModelClient } from "./model.ts";
+import { Tools } from "./tools.ts";
+import { formatInbox } from "./message.ts";
 
 export type RunInput = {
   model: ModelClient;

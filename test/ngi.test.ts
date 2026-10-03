@@ -415,6 +415,33 @@ describe("orchestrator", () => {
     ledger.close();
     rmSync(dir, { recursive: true, force: true });
   });
+
+  it("says so when the round ceiling decided, not the orchestrator", async () => {
+    resetIds();
+    const dir = tmp();
+    const ledger = new Ledger(join(dir, "events.db"));
+
+    // Never stops handing out agents, so only the ceiling can end this. Without
+    // the flag the result is indistinguishable from a clean finish.
+    const model = new ScriptedModel()
+      .onSystem("Orchestrator", () => text(json({ agents: [{ skill: "system-design", prompt: "design it" }] })))
+      .onAny(() => text("here. completed: true"));
+
+    const outcome = await orchestrate({
+      model,
+      ledger,
+      tools: new Tools(),
+      request: "build something",
+      rounds: 2,
+    });
+
+    expect(outcome.rounds).toBe(2);
+    expect(outcome.results).toHaveLength(2);
+    expect(outcome.waiting).toBeNull();
+    expect(outcome.exhausted).toBe(true);
+    ledger.close();
+    rmSync(dir, { recursive: true, force: true });
+  });
 });
 
 describe("plan parsing", () => {

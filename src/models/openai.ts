@@ -34,8 +34,13 @@ export class OpenAICompatible implements ModelClient {
   private readonly baseUrl: string;
   private readonly send: typeof fetch;
   private counter = 0;
+  private readonly options: OpenAICompatibleOptions;
 
-  constructor(private readonly options: OpenAICompatibleOptions) {
+  // Written out longhand rather than as a parameter property: Node runs this
+  // file directly with type stripping, which cannot erase a parameter property
+  // because that construct emits code rather than only types.
+  constructor(options: OpenAICompatibleOptions) {
+    this.options = options;
     this.baseUrl = (options.baseUrl ?? "https://api.openai.com/v1").replace(/\/+$/, "");
     this.send = options.fetch ?? fetch;
   }

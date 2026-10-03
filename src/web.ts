@@ -1,7 +1,7 @@
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { lookup } from "node:dns/promises";
-import type { Tool } from "./tools.js";
+import type { Tool } from "./tools.ts";
 
 /**
  * The two tools that let an agent read the outside world: ask several search

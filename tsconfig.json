@@ -6,6 +6,11 @@
     "moduleResolution": "NodeNext",
     "rootDir": ".",
     "outDir": "dist",
+    // Imports name the `.ts` file they mean. Node runs this directly with type
+    // stripping, which does not rewrite `./store.js` into `./store.ts`, and tsc
+    // rewrites them back to `.js` if anything is ever emitted.
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,

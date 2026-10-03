@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import { openDatabase } from "./schema.js";
+import { openDatabase } from "./schema.ts";
 
 /** Where a piece of work sits in the project. Nothing enforces this, it records it. */
 export type Status = "running" | "done" | "partial" | "blocked";

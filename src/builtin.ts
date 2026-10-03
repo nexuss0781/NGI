@@ -1,8 +1,8 @@
-import { run } from "./run.js";
-import type { RunResult } from "./run.js";
-import { Tools } from "./tools.js";
-import type { CallContext, Tool } from "./tools.js";
-import { prompt } from "./prompts.js";
+import { run } from "./run.ts";
+import type { RunResult } from "./run.ts";
+import { Tools } from "./tools.ts";
+import type { CallContext, Tool } from "./tools.ts";
+import { prompt } from "./prompts.ts";
 
 export type BuiltinInput = {
   model: import("./model.js").ModelClient;

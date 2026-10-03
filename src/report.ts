@@ -1,4 +1,4 @@
-import type { Artifact, Status } from "./ledger.js";
+import type { Artifact, Status } from "./ledger.ts";
 
 export type Report = {
   status: Status;

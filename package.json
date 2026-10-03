@@ -6,7 +6,11 @@
   "engines": {
     "node": ">=22.5.0"
   },
+  "bin": {
+    "ngi": "src/cli.ts"
+  },
   "scripts": {
+    "start": "node --experimental-strip-types src/cli.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

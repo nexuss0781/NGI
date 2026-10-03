@@ -1,11 +1,11 @@
-import { run } from "./run.js";
-import { Ledger } from "./ledger.js";
-import { Tools } from "./tools.js";
-import { prompt } from "./prompts.js";
-import { readReport } from "./report.js";
-import { inspectTool, agentTool } from "./builtin.js";
-import type { ModelClient } from "./model.js";
-import type { Report } from "./report.js";
+import { run } from "./run.ts";
+import { Ledger } from "./ledger.ts";
+import { Tools } from "./tools.ts";
+import { prompt } from "./prompts.ts";
+import { readReport } from "./report.ts";
+import { inspectTool, agentTool } from "./builtin.ts";
+import type { ModelClient } from "./model.ts";
+import type { Report } from "./report.ts";
 
 export type Assignment = {
   skill: string;
@@ -37,6 +37,12 @@ export type OrchestrateResult = {
   rounds: number;
   note: string;
   waiting: Plan | null;
+  /**
+   * True when the round ceiling arrived with work still going. Without this the
+   * last round looks exactly like a clean finish -- same `rounds`, same empty
+   * `waiting` -- and a caller has no way to tell "done" from "still going".
+   */
+  exhausted: boolean;
   results: Array<{ skill: string; result: string; id: string; report: Report }>;
 };
 
@@ -84,7 +90,7 @@ export async function orchestrate(input: OrchestrateInput): Promise<OrchestrateR
 
     if (plan.wait || !plan.agents || plan.agents.length === 0) {
       waiting = plan.wait ? plan : null;
-      return { rounds: round, note, waiting, results };
+      return { rounds: round, note, waiting, exhausted: false, results };
     }
 
     // Every agent in a round gets an id when it starts, so any of them can be
@@ -121,7 +127,8 @@ export async function orchestrate(input: OrchestrateInput): Promise<OrchestrateR
     }
   }
 
-  return { rounds, note, waiting, results };
+  // Fell out of the loop, so the ceiling decided this and the orchestrator did not.
+  return { rounds, note, waiting, exhausted: true, results };
 }
 
 async function send(
